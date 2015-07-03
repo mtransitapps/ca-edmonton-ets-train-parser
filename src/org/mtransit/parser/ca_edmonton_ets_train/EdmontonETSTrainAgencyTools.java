@@ -193,44 +193,36 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, HashSet<MTrip> splitTrips, GSpec gtfs) {
 		if (mRoute.id == RID_CAPITAL_LINE) {
-			if (CENTURY_PK_STOP_ID.equals(gTripStop.stop_id)) {
-				if (gTripStop.stop_sequence == 1) {
-					return new Pair<Long[], Integer[]>(new Long[] { MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW) },
-							new Integer[] { gTripStop.stop_sequence });
+			if (CENTURY_PK_STOP_ID.equals(gTripStop.getStopId())) {
+				if (gTripStop.getStopSequence() == 1) {
+					return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CLAREVIEW }, STOP_SEQUENCES_FIRST);
 				} else {
 					if (isLastTripStop(gTrip, gTripStop, gtfs)) {
-						return new Pair<Long[], Integer[]>(new Long[] { MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK) },
-								new Integer[] { gTripStop.stop_sequence });
+						return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CENTURY_PK }, new Integer[] { gTripStop.getStopSequence() });
 					} else {
 						return new Pair<Long[], Integer[]>(new Long[] { //
-								MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK),
-										MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW) }, //
-								new Integer[] { Integer.MAX_VALUE, 1 });
+								TID_CAPITAL_LINE_CLAREVIEW, TID_CAPITAL_LINE_CENTURY_PK }, //
+								STOP_SEQUENCES_FIRST_AND_LAST);
 					}
 				}
 			}
-			if (CLAREVIEW_STOP_ID.equals(gTripStop.stop_id)) {
-				if (gTripStop.stop_sequence == 1) {
-					return new Pair<Long[], Integer[]>(new Long[] { MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK) },
-							new Integer[] { gTripStop.stop_sequence });
+			if (CLAREVIEW_STOP_ID.equals(gTripStop.getStopId())) {
+				if (gTripStop.getStopSequence() == 1) {
+					return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CENTURY_PK }, STOP_SEQUENCES_FIRST);
 				} else {
 					if (isLastTripStop(gTrip, gTripStop, gtfs)) {
-						return new Pair<Long[], Integer[]>(new Long[] { MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW) },
-								new Integer[] { gTripStop.stop_sequence });
+						return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CLAREVIEW }, new Integer[] { gTripStop.getStopSequence() });
 					} else {
 						return new Pair<Long[], Integer[]>(new Long[] { //
-								MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK),
-										MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW) }, //
-								new Integer[] { 1, Integer.MAX_VALUE });
+								TID_CAPITAL_LINE_CENTURY_PK, TID_CAPITAL_LINE_CLAREVIEW }, //
+								STOP_SEQUENCES_FIRST_AND_LAST);
 					}
 				}
 			}
-			if (CAPITAL_LINE_STOP_IDS_CENTURY_PK.contains(gTripStop.stop_id)) {
-				return new Pair<Long[], Integer[]>(new Long[] { MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK) },
-						new Integer[] { gTripStop.stop_sequence });
-			} else if (CAPITAL_LINE_STOP_IDS_CLAREVIEW.contains(gTripStop.stop_id)) {
-				return new Pair<Long[], Integer[]>(new Long[] { MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW) },
-						new Integer[] { gTripStop.stop_sequence });
+			if (CAPITAL_LINE_STOP_IDS_CENTURY_PK.contains(gTripStop.getStopId())) {
+				return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CENTURY_PK }, new Integer[] { gTripStop.getStopSequence() });
+			} else if (CAPITAL_LINE_STOP_IDS_CLAREVIEW.contains(gTripStop.getStopId())) {
+				return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CLAREVIEW }, new Integer[] { gTripStop.getStopSequence() });
 			} else {
 				System.out.println("Unexptected trip stop to split " + gTripStop);
 				System.exit(-1);
@@ -240,11 +232,11 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	}
 
 	private boolean isLastTripStop(GTrip gTrip, GTripStop gTripStop, GSpec gtfs) {
-		for (GTripStop ts : gtfs.tripStops.values()) {
-			if (!ts.trip_id.equals(gTrip.getTripId())) {
+		for (GTripStop ts : gtfs.getTripStops(gTrip.getTripId())) {
+			if (!ts.getTripId().equals(gTrip.getTripId())) {
 				continue;
 			}
-			if (ts.stop_sequence > gTripStop.stop_sequence) {
+			if (ts.getStopSequence() > gTripStop.getStopSequence()) {
 				return false;
 			}
 		}
