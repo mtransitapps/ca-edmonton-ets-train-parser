@@ -190,6 +190,14 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		CAPITAL_LINE_STOP_IDS_CLAREVIEW = set;
 	}
 
+	private static final long TID_CAPITAL_LINE_CLAREVIEW = MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW);
+	private static final long TID_CAPITAL_LINE_CENTURY_PK = MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK);
+
+	private static final int STOP_SEQUENCE_FIRST = 1;
+	private static final int STOP_SEQUENCE_LAST = Integer.MAX_VALUE;
+	private static final Integer[] STOP_SEQUENCES_FIRST = new Integer[] { STOP_SEQUENCE_FIRST };
+	private static final Integer[] STOP_SEQUENCES_FIRST_AND_LAST = new Integer[] { STOP_SEQUENCE_FIRST, STOP_SEQUENCE_LAST };
+
 	@Override
 	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, HashSet<MTrip> splitTrips, GSpec gtfs) {
 		if (mRoute.id == RID_CAPITAL_LINE) {
