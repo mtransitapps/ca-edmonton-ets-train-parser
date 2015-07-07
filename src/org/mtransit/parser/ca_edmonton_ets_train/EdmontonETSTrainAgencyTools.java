@@ -1,22 +1,29 @@
 package org.mtransit.parser.ca_edmonton_ets_train;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.Pair;
+import org.mtransit.parser.SplitUtils;
+import org.mtransit.parser.SplitUtils.RouteTripSpec;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GSpec;
+import org.mtransit.parser.gtfs.data.GStop;
 import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.gtfs.data.GTripStop;
 import org.mtransit.parser.mt.data.MAgency;
 import org.mtransit.parser.mt.data.MRoute;
-import org.mtransit.parser.mt.data.MSpec;
 import org.mtransit.parser.mt.data.MTrip;
+import org.mtransit.parser.mt.data.MTripStop;
 
 // http://www.edmonton.ca/transportation/ets/about_ets/ets-data-for-developers.aspx
 // http://webdocs.edmonton.ca/transit/etsdatafeed/google_transit.zip
@@ -36,11 +43,11 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public void start(String[] args) {
-		System.out.printf("Generating ETS train data...\n");
+		System.out.printf("\nGenerating ETS train data...\n");
 		long start = System.currentTimeMillis();
 		this.serviceIds = extractUsefulServiceIds(args, this);
 		super.start(args);
-		System.out.printf("Generating ETS train data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+		System.out.printf("\nGenerating ETS train data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	@Override
@@ -90,7 +97,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	public String getRouteLongName(GRoute gRoute) {
 		String gRouteLongName = gRoute.route_long_name;
 		gRouteLongName = CLEAN_STARTS_LRT.matcher(gRouteLongName).replaceAll(StringUtils.EMPTY);
-		return MSpec.cleanLabel(gRouteLongName);
+		return CleanUtils.cleanLabel(gRouteLongName);
 	}
 
 	private static final String AGENCY_COLOR_BLUE = "2D3092"; // BLUE (from Wikipedia SVG)
@@ -118,142 +125,71 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		}
 	}
 
+	@Override
+	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
+		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
+			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+		}
+		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+	}
+
 	private static final long RID_CAPITAL_LINE = 501l;
 
 	@Override
 	public HashSet<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
-		if (mRoute.id == RID_CAPITAL_LINE) {
-			HashSet<MTrip> mTrips = new HashSet<MTrip>();
-			MTrip mTripCenturyPk = new MTrip(mRoute.id);
-			mTripCenturyPk.setHeadsignString(CENTURY_PK, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK);
-			mTrips.add(mTripCenturyPk);
-			MTrip mTripClareview = new MTrip(mRoute.id);
-			mTripClareview.setHeadsignString(CLAREVIEW, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW);
-			mTrips.add(mTripClareview);
-			return mTrips;
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.id)) {
+			return ALL_ROUTE_TRIPS2.get(mRoute.id).getAllTrips();
 		}
 		System.out.println("Unexpected split trip (unexpected route ID: " + mRoute.id + ") " + gTrip);
 		System.exit(-1);
 		return null;
 	}
 
-	private static final String CENTURY_PK_STOP_ID = "4982";
-	private static final String CLAREVIEW_STOP_ID = "7977";
-
-	private static final int CAPITAL_LINE_DIRECTION_ID_CENTURY_PK = 0;
-	private static final int CAPITAL_LINE_DIRECTION_ID_CLAREVIEW = 1;
-
 	private static final String CENTURY_PK = "Century Pk";
 	private static final String CLAREVIEW = "Clareview";
 
+	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
+	static {
+		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
+		map2.put(RID_CAPITAL_LINE, new RouteTripSpec(RID_CAPITAL_LINE, //
+				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
+				1, MTrip.HEADSIGN_TYPE_STRING, CLAREVIEW) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { "7977", "1889", "1876", "1891", "2316", "2115", "4982" })) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { "4982", "2116", "2969", "1926", "1691", "1742", "7977" })) //
+				.compileBothTripSort());
+		ALL_ROUTE_TRIPS2 = map2;
+	}
+
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
-		if (mRoute.id == RID_CAPITAL_LINE) {
-			return;
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.id)) {
+			return; // split
 		}
-		System.out.println("Unexpected trip (unexpected route ID: " + mRoute.id + ") " + gTrip);
+		System.out.printf("\n%s: Unexpected trip %s.\n", mRoute.id, gTrip);
 		System.exit(-1);
 	}
 
-	private static final HashSet<String> CAPITAL_LINE_STOP_IDS_CENTURY_PK;
-	private static final HashSet<String> CAPITAL_LINE_STOP_IDS_CLAREVIEW;
-	static {
-		HashSet<String> set = new HashSet<String>();
-		set.add("2114");
-		set.add("2116");
-		set.add("9982");
-		set.add("2014");
-		set.add("2969");
-		set.add("1754");
-		set.add("1926");
-		set.add("1985");
-		set.add("1863");
-		set.add("1691");
-		set.add("1981");
-		set.add("1742");
-		set.add("7830");
-		CAPITAL_LINE_STOP_IDS_CENTURY_PK = set;
-		set = new HashSet<String>();
-		set.add("7692");
-		set.add("1889");
-		set.add("1723");
-		set.add("1876");
-		set.add("1935");
-		set.add("1774");
-		set.add("1891");
-		set.add("1925");
-		set.add("2316");
-		set.add("2019");
-		set.add("9981");
-		set.add("2115");
-		set.add("2113");
-		CAPITAL_LINE_STOP_IDS_CLAREVIEW = set;
-	}
-
-	private static final long TID_CAPITAL_LINE_CLAREVIEW = MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CLAREVIEW);
-	private static final long TID_CAPITAL_LINE_CENTURY_PK = MTrip.getNewId(RID_CAPITAL_LINE, CAPITAL_LINE_DIRECTION_ID_CENTURY_PK);
-
-	private static final int STOP_SEQUENCE_FIRST = 1;
-	private static final int STOP_SEQUENCE_LAST = Integer.MAX_VALUE;
-	private static final Integer[] STOP_SEQUENCES_FIRST = new Integer[] { STOP_SEQUENCE_FIRST };
-	private static final Integer[] STOP_SEQUENCES_FIRST_AND_LAST = new Integer[] { STOP_SEQUENCE_FIRST, STOP_SEQUENCE_LAST };
-
 	@Override
-	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, HashSet<MTrip> splitTrips, GSpec gtfs) {
-		if (mRoute.id == RID_CAPITAL_LINE) {
-			if (CENTURY_PK_STOP_ID.equals(gTripStop.getStopId())) {
-				if (gTripStop.getStopSequence() == 1) {
-					return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CLAREVIEW }, STOP_SEQUENCES_FIRST);
-				} else {
-					if (isLastTripStop(gTrip, gTripStop, gtfs)) {
-						return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CENTURY_PK }, new Integer[] { gTripStop.getStopSequence() });
-					} else {
-						return new Pair<Long[], Integer[]>(new Long[] { //
-								TID_CAPITAL_LINE_CLAREVIEW, TID_CAPITAL_LINE_CENTURY_PK }, //
-								STOP_SEQUENCES_FIRST_AND_LAST);
-					}
-				}
-			}
-			if (CLAREVIEW_STOP_ID.equals(gTripStop.getStopId())) {
-				if (gTripStop.getStopSequence() == 1) {
-					return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CENTURY_PK }, STOP_SEQUENCES_FIRST);
-				} else {
-					if (isLastTripStop(gTrip, gTripStop, gtfs)) {
-						return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CLAREVIEW }, new Integer[] { gTripStop.getStopSequence() });
-					} else {
-						return new Pair<Long[], Integer[]>(new Long[] { //
-								TID_CAPITAL_LINE_CENTURY_PK, TID_CAPITAL_LINE_CLAREVIEW }, //
-								STOP_SEQUENCES_FIRST_AND_LAST);
-					}
-				}
-			}
-			if (CAPITAL_LINE_STOP_IDS_CENTURY_PK.contains(gTripStop.getStopId())) {
-				return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CENTURY_PK }, new Integer[] { gTripStop.getStopSequence() });
-			} else if (CAPITAL_LINE_STOP_IDS_CLAREVIEW.contains(gTripStop.getStopId())) {
-				return new Pair<Long[], Integer[]>(new Long[] { TID_CAPITAL_LINE_CLAREVIEW }, new Integer[] { gTripStop.getStopSequence() });
-			} else {
-				System.out.println("Unexptected trip stop to split " + gTripStop);
-				System.exit(-1);
-			}
+	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, HashSet<MTrip> splitTrips, GSpec routeGTFS) {
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.id)) {
+			RouteTripSpec rts = ALL_ROUTE_TRIPS2.get(mRoute.id);
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, //
+					rts.getBeforeAfterStopIds(0), //
+					rts.getBeforeAfterStopIds(1), //
+					rts.getBeforeAfterBothStopIds(0), //
+					rts.getBeforeAfterBothStopIds(1), //
+					rts.getTripId(0), //
+					rts.getTripId(1), //
+					rts.getAllBeforeAfterStopIds());
 		}
-		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, gtfs);
-	}
-
-	private boolean isLastTripStop(GTrip gTrip, GTripStop gTripStop, GSpec gtfs) {
-		for (GTripStop ts : gtfs.getTripStops(gTrip.getTripId())) {
-			if (!ts.getTripId().equals(gTrip.getTripId())) {
-				continue;
-			}
-			if (ts.getStopSequence() > gTripStop.getStopSequence()) {
-				return false;
-			}
-		}
-		return true;
+		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
-		return MSpec.cleanLabel(tripHeadsign);
+		return CleanUtils.cleanLabel(tripHeadsign);
 	}
 
 	private static final Pattern ENDS_WITH_STATION = Pattern.compile("([\\s]*station[\\s]*$)", Pattern.CASE_INSENSITIVE);
@@ -261,8 +197,8 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String cleanStopName(String gStopName) {
 		gStopName = ENDS_WITH_STATION.matcher(gStopName).replaceAll(StringUtils.EMPTY);
-		gStopName = MSpec.cleanStreetTypes(gStopName);
-		gStopName = MSpec.cleanNumbers(gStopName);
-		return MSpec.cleanLabel(gStopName);
+		gStopName = CleanUtils.cleanStreetTypes(gStopName);
+		gStopName = CleanUtils.cleanNumbers(gStopName);
+		return CleanUtils.cleanLabel(gStopName);
 	}
 }
