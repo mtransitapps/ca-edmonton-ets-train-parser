@@ -82,12 +82,12 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public boolean excludeRoute(GRoute gRoute) {
-		return gRoute.route_type != MAgency.ROUTE_TYPE_LIGHT_RAIL; // declared as light rail but we classify it as a train (not on the road)
+		return gRoute.getRouteType() != MAgency.ROUTE_TYPE_LIGHT_RAIL; // declared as light rail but we classify it as a train (not on the road)
 	}
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		return Long.parseLong(gRoute.route_short_name); // using route short name as route ID
+		return Long.parseLong(gRoute.getRouteShortName()); // using route short name as route ID
 	}
 
 	private static final int RSN_CAPITAL_LINE = 501;
@@ -96,7 +96,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
-		String gRouteLongName = gRoute.route_long_name;
+		String gRouteLongName = gRoute.getRouteLongName();
 		gRouteLongName = CLEAN_STARTS_LRT.matcher(gRouteLongName).replaceAll(StringUtils.EMPTY);
 		return CleanUtils.cleanLabel(gRouteLongName);
 	}
@@ -114,7 +114,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		int rsn = Integer.parseInt(gRoute.route_short_name);
+		int rsn = Integer.parseInt(gRoute.getRouteShortName());
 		switch (rsn) {
 		// @formatter:off
 		case RSN_CAPITAL_LINE: return COLOR_CAPITAL_LINE;
@@ -175,15 +175,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.id)) {
-			RouteTripSpec rts = ALL_ROUTE_TRIPS2.get(mRoute.id);
-			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, //
-					rts.getBeforeAfterStopIds(0), //
-					rts.getBeforeAfterStopIds(1), //
-					rts.getBeforeAfterBothStopIds(0), //
-					rts.getBeforeAfterBothStopIds(1), //
-					rts.getTripId(0), //
-					rts.getTripId(1), //
-					rts.getAllBeforeAfterStopIds());
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.id));
 		}
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
