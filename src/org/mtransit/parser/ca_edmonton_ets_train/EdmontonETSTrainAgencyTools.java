@@ -187,9 +187,14 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	private static final Pattern ENDS_WITH_STATION = Pattern.compile("([\\s]*station[\\s]*$)", Pattern.CASE_INSENSITIVE);
 
+	private static final String EDMONTON = "Edm";
+	private static final Pattern EDMONTON_ = Pattern.compile("((^|\\W){1}(edmonton)(\\W|$){1})", Pattern.CASE_INSENSITIVE);
+	private static final String EDMONTON_REPLACEMENT = "$2" + EDMONTON + "$4";
+
 	@Override
 	public String cleanStopName(String gStopName) {
 		gStopName = ENDS_WITH_STATION.matcher(gStopName).replaceAll(StringUtils.EMPTY);
+		gStopName = EDMONTON_.matcher(gStopName).replaceAll(EDMONTON_REPLACEMENT);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		gStopName = CleanUtils.cleanNumbers(gStopName);
 		return CleanUtils.cleanLabel(gStopName);
