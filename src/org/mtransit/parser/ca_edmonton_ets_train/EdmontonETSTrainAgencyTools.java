@@ -91,6 +91,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	}
 
 	private static final int RSN_CAPITAL_LINE = 501;
+	private static final int RSN_METRO_LINE = 502;
 
 	private static final Pattern CLEAN_STARTS_LRT = Pattern.compile("(^lrt )", Pattern.CASE_INSENSITIVE);
 
@@ -111,6 +112,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	}
 
 	private static final String COLOR_CAPITAL_LINE = "0D4BA0"; // BLUE (from PDF map)
+	private static final String COLOR_METRO_LINE = "EE2D24"; // RED (from PDF map)
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
@@ -118,6 +120,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		switch (rsn) {
 		// @formatter:off
 		case RSN_CAPITAL_LINE: return COLOR_CAPITAL_LINE;
+		case RSN_METRO_LINE: return COLOR_METRO_LINE;
 		// @formatter:on
 		default:
 			System.out.println("Unexpected route color " + gRoute);
@@ -135,19 +138,21 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	}
 
 	private static final long RID_CAPITAL_LINE = 501l;
+	private static final long RID_METRO_LINE = 502l;
 
 	@Override
 	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.id)) {
 			return ALL_ROUTE_TRIPS2.get(mRoute.id).getAllTrips();
 		}
-		System.out.println("Unexpected split trip (unexpected route ID: " + mRoute.id + ") " + gTrip);
+		System.out.printf("\fUnexpected split trip (unexpected route ID: %s) %s", mRoute.id, gTrip);
 		System.exit(-1);
 		return null;
 	}
 
 	private static final String CENTURY_PK = "Century Pk";
 	private static final String CLAREVIEW = "Clareview";
+	private static final String NAIT = "NAIT";
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
@@ -159,6 +164,20 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 						Arrays.asList(new String[] { "7977", "1889", "1876", "1891", "2316", "2115", "4982" })) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { "4982", "2116", "2969", "1926", "1691", "1742", "7977" })) //
+				.compileBothTripSort());
+		map2.put(RID_METRO_LINE, new RouteTripSpec(RID_METRO_LINE, //
+				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
+				1, MTrip.HEADSIGN_TYPE_STRING, NAIT) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { "1116", "1118", "2019", //
+								/* + */"2005"/* + */, //
+								/* + */"9981"/* + */, //
+								"2113", "4982" })) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { "4982", "2114",
+						/* + */"2116"/* + */, //
+								/* + */"2005"/* + */, //
+								"2014", "1117", "1116" })) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
 	}
