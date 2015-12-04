@@ -26,8 +26,10 @@ import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 import org.mtransit.parser.mt.data.MTripStop;
 
-// http://www.edmonton.ca/transportation/ets/about_ets/ets-data-for-developers.aspx
-// http://webdocs.edmonton.ca/transit/etsdatafeed/google_transit.zip
+// https://data.edmonton.ca/
+// https://data.edmonton.ca/Transit/ETS-Bus-Schedule-GTFS-Data-Feed-zipped-files/gzhc-5ss6
+// https://data.edmonton.ca/download/gzhc-5ss6/application/zip
+// http://www.edmonton.ca/ets/ets-data-for-developers.aspx
 public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	public static void main(String[] args) {
@@ -46,7 +48,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	public void start(String[] args) {
 		System.out.printf("\nGenerating ETS train data...");
 		long start = System.currentTimeMillis();
-		this.serviceIds = extractUsefulServiceIds(args, this);
+		this.serviceIds = extractUsefulServiceIds(args, this, true);
 		super.start(args);
 		System.out.printf("\nGenerating ETS train data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}

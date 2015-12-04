@@ -2,12 +2,13 @@
 echo ">> Downloading..."
 URL=`cat input_url`;
 FILENAME=$(basename "$URL");
-if [ -e input/gtfs.zip ]; then
-    mv input/gtfs.zip $FILENAME;
-    wget --header="User-Agent: MonTransit" --timeout=60 --tries=6 -N $URL;
-else
+# Server returns: "ERROR 400: Bad Request"
+# if [ -e input/gtfs.zip ]; then
+#     mv input/gtfs.zip $FILENAME;
+#     wget --header="User-Agent: MonTransit" --timeout=60 --tries=6 -N $URL;
+# else
     wget --header="User-Agent: MonTransit" --timeout=60 --tries=6 -S $URL;
-fi;
+# fi;
 if [ -e $FILENAME ]; then
 	mv $FILENAME input/gtfs.zip;
 fi;
