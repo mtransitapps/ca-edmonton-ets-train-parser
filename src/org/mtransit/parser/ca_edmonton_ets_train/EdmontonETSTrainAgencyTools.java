@@ -131,26 +131,8 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		}
 	}
 
-	@Override
-	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
-		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
-			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
-		}
-		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
-	}
-
 	private static final long RID_CAPITAL_LINE = 501l;
 	private static final long RID_METRO_LINE = 502l;
-
-	@Override
-	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
-		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
-			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
-		}
-		System.out.printf("\fUnexpected split trip (unexpected route ID: %s) %s", mRoute.getId(), gTrip);
-		System.exit(-1);
-		return null;
-	}
 
 	private static final String CENTURY_PK = "Century Pk";
 	private static final String CLAREVIEW = "Clareview";
@@ -163,25 +145,61 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
 				1, MTrip.HEADSIGN_TYPE_STRING, CLAREVIEW) //
 				.addTripSort(0, //
-						Arrays.asList(new String[] { "7977", "1889", "1876", "1891", "2316", "2115", "4982" })) //
+						Arrays.asList(new String[] { //
+						"7977", "1889", "1876", "1891", "2316", "2115", "4982" //
+						})) //
 				.addTripSort(1, //
-						Arrays.asList(new String[] { "4982", "2116", "2969", "1926", "1691", "1742", "7977" })) //
+						Arrays.asList(new String[] { //
+						"4982", "2116", "2969", "1926", "1691", "1742", "7977" //
+						})) //
 				.compileBothTripSort());
 		map2.put(RID_METRO_LINE, new RouteTripSpec(RID_METRO_LINE, //
 				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
 				1, MTrip.HEADSIGN_TYPE_STRING, NAIT) //
 				.addTripSort(0, //
-						Arrays.asList(new String[] { "1116", "1118", "2019", //
+						Arrays.asList(new String[] { //
+						"1116", "1118", //
+								"1876", //
+								"2019", //
 								/* + */"2005"/* + */, //
 								/* + */"9981"/* + */, //
-								"2113", "4982" })) //
+								"2113", "4982" //
+						})) //
 				.addTripSort(1, //
-						Arrays.asList(new String[] { "4982", "2114",
+						Arrays.asList(new String[] { //
+						"4982", "2114",
 						/* + */"2116"/* + */, //
 								/* + */"2005"/* + */, //
-								"2014", "1117", "1116" })) //
+								"2014", "1117", "1116" //
+						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
+	}
+
+	@Override
+	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
+		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
+			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+		}
+		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+	}
+
+	@Override
+	public ArrayList<MTrip> splitTrip(MRoute mRoute, GTrip gTrip, GSpec gtfs) {
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
+			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
+		}
+		System.out.printf("\fUnexpected split trip (unexpected route ID: %s) %s", mRoute.getId(), gTrip);
+		System.exit(-1);
+		return null;
+	}
+
+	@Override
+	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
+		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()));
+		}
+		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
 	@Override
@@ -191,14 +209,6 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		}
 		System.out.printf("\n%s: Unexpected trip %s.\n", mRoute.getId(), gTrip);
 		System.exit(-1);
-	}
-
-	@Override
-	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
-		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
-			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()));
-		}
-		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
 	private static final Pattern N_A_I_T_ = Pattern.compile("(n a i t)", Pattern.CASE_INSENSITIVE);
