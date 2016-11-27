@@ -89,11 +89,16 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		return Long.parseLong(gRoute.getRouteShortName()); // using route short name as route ID
+		return Long.parseLong(gRoute.getRouteId()); // using route short name as route ID
 	}
 
-	private static final int RSN_CAPITAL_LINE = 501;
-	private static final int RSN_METRO_LINE = 502;
+	@Override
+	public String getRouteShortName(GRoute gRoute) {
+		return String.valueOf(gRoute.getRouteId());
+	}
+
+	private static final String RSN_CAPITAL_LINE = "Capital";
+	private static final String RSN_METRO_LINE = "Metro";
 
 	private static final Pattern CLEAN_STARTS_LRT = Pattern.compile("(^lrt )", Pattern.CASE_INSENSITIVE);
 
@@ -118,17 +123,14 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		int rsn = Integer.parseInt(gRoute.getRouteShortName());
-		switch (rsn) {
-		// @formatter:off
-		case RSN_CAPITAL_LINE: return COLOR_CAPITAL_LINE;
-		case RSN_METRO_LINE: return COLOR_METRO_LINE;
-		// @formatter:on
-		default:
-			System.out.println("Unexpected route color " + gRoute);
-			System.exit(-1);
-			return null;
+		if (RSN_CAPITAL_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
+			return COLOR_CAPITAL_LINE;
+		} else if (RSN_METRO_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
+			return COLOR_METRO_LINE;
 		}
+		System.out.printf("\nUnexpected route color for %s!\n", gRoute);
+		System.exit(-1);
+		return null;
 	}
 
 	private static final long RID_CAPITAL_LINE = 501l;
