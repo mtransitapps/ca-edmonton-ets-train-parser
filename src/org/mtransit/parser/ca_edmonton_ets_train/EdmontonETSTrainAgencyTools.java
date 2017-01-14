@@ -123,6 +123,15 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
+		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+			int rsn = Integer.parseInt(gRoute.getRouteShortName());
+			switch (rsn) {
+			case 501:
+				return COLOR_CAPITAL_LINE;
+			case 502:
+				return COLOR_METRO_LINE;
+			}
+		}
 		if (RSN_CAPITAL_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
 			return COLOR_CAPITAL_LINE;
 		} else if (RSN_METRO_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
@@ -133,8 +142,8 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return null;
 	}
 
-	private static final long RID_CAPITAL_LINE = 501l;
-	private static final long RID_METRO_LINE = 502l;
+	private static final long RID_CAPITAL_LINE = 501L;
+	private static final long RID_METRO_LINE = 502L;
 
 	private static final String CENTURY_PK = "Century Pk";
 	private static final String CLAREVIEW = "Clareview";
