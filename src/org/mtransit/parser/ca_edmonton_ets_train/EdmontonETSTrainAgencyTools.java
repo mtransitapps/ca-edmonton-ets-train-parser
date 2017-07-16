@@ -157,11 +157,23 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				1, MTrip.HEADSIGN_TYPE_STRING, CLAREVIEW) //
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
-						"7977", "1889", "1876", "1891", "2316", "2115", "4982" //
+						"7977", // Clareview Station
+								"1889", // Coliseum Station
+								"1876", // Churchill Station
+								"1891", // Corona Station
+								"2316", // University Station
+								"2115", // South Campus Ft Edmonton Station
+								"4982", // Century Park Station
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
-						"4982", "2116", "2969", "1926", "1691", "1742", "7977" //
+						"4982", // Century Park Station
+								"2116", // South Campus Ft Edmonton Station
+								"2969", // University Station
+								"1926", // Corona Station
+								"1691", // Churchill Station
+								"1742", // Coliseum Station
+								"7977", // Clareview Station
 						})) //
 				.compileBothTripSort());
 		map2.put(RID_METRO_LINE, new RouteTripSpec(RID_METRO_LINE, //
@@ -169,19 +181,23 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				1, MTrip.HEADSIGN_TYPE_STRING, NAIT) //
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
-						"1116", "1118", //
-								"1876", //
-								"2019", //
-								/* + */"2005"/* + */, //
-								/* + */"9981"/* + */, //
-								"2113", "4982" //
+						"1116", // NAIT Station
+								"1935", // Central Station
+								"2019", // == !=
+								"2005", // != <> Metro Line JTTl Track => NAIT
+								"9981", // !=
+								"2113", // ++
+								"4982", // Century Park Station
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
-						"4982", "2114",
-						/* + */"2116"/* + */, //
-								/* + */"2005"/* + */, //
-								"2014", "1117", "1116" //
+						"4982", // Century Park Station
+								"9982", // != !=
+								"2005", // != <> Metro Line JTTl Track
+								"2014", // == !=
+								"1863", // Central Station
+								"1117", // ++
+								"1116" // NAIT Station
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
