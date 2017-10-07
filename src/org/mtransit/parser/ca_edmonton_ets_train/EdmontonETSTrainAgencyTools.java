@@ -123,23 +123,26 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
-			int rsn = Integer.parseInt(gRoute.getRouteShortName());
-			switch (rsn) {
-			case 501:
+		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
+			if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+				int rsn = Integer.parseInt(gRoute.getRouteShortName());
+				switch (rsn) {
+				case 501:
+					return COLOR_CAPITAL_LINE;
+				case 502:
+					return COLOR_METRO_LINE;
+				}
+			}
+			if (RSN_CAPITAL_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
 				return COLOR_CAPITAL_LINE;
-			case 502:
+			} else if (RSN_METRO_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
 				return COLOR_METRO_LINE;
 			}
+			System.out.printf("\nUnexpected route color for %s!\n", gRoute);
+			System.exit(-1);
+			return null;
 		}
-		if (RSN_CAPITAL_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
-			return COLOR_CAPITAL_LINE;
-		} else if (RSN_METRO_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
-			return COLOR_METRO_LINE;
-		}
-		System.out.printf("\nUnexpected route color for %s!\n", gRoute);
-		System.exit(-1);
-		return null;
+		return super.getRouteColor(gRoute);
 	}
 
 	private static final long RID_CAPITAL_LINE = 501L;
@@ -216,9 +219,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return ALL_ROUTE_TRIPS2.get(mRoute.getId()).getAllTrips();
 		}
-		System.out.printf("\fUnexpected split trip (unexpected route ID: %s) %s", mRoute.getId(), gTrip);
-		System.exit(-1);
-		return null;
+		return super.splitTrip(mRoute, gTrip, gtfs);
 	}
 
 	@Override
