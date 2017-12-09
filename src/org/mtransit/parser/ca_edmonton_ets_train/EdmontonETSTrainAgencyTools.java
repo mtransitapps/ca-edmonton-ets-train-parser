@@ -163,6 +163,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 						"7977", // Clareview Station
 								"1889", // Coliseum Station
 								"1876", // Churchill Station
+								"1935", // Central Station
 								"1891", // Corona Station
 								"2316", // University Station
 								"2115", // South Campus Ft Edmonton Station
@@ -185,6 +186,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
 						"1116", // NAIT Station
+								"1876", // Churchill Station
 								"1935", // Central Station
 								"2019", // == !=
 								"2005", // != <> Metro Line JTTl Track => NAIT
@@ -199,6 +201,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 								"2005", // != <> Metro Line JTTl Track
 								"2014", // == !=
 								"1863", // Central Station
+								"1691", // Churchill Station
 								"1117", // ++
 								"1116" // NAIT Station
 						})) //
