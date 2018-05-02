@@ -186,6 +186,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
 						"1116", // NAIT Station
+								"1118", // MacEwan Station
 								"1876", // Churchill Station
 								"1935", // Central Station
 								"2019", // == !=
