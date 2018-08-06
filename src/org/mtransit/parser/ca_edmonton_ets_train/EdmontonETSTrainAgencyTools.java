@@ -206,9 +206,11 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 								"9982", // != !=
 								"2005", // != <> Metro Line JTTl Track
 								"2014", // == !=
+								"1926", // Corona Station
 								"1863", // Central Station
 								"1691", // Churchill Station
 								"1117", // ++
+								"1115", // Kingsway RAH Station
 								"1116" // NAIT Station
 						})) //
 				.compileBothTripSort());
