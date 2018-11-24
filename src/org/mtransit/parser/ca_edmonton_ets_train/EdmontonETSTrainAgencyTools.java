@@ -94,12 +94,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		return Long.parseLong(gRoute.getRouteId()); // using route short name as route ID
-	}
-
-	@Override
-	public String getRouteShortName(GRoute gRoute) {
-		return String.valueOf(gRoute.getRouteId());
+		return Long.parseLong(getRouteShortName(gRoute)); // using route short name as route ID
 	}
 
 	private static final String RSN_CAPITAL_LINE = "Capital";
