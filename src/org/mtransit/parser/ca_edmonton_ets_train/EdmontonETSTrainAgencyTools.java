@@ -97,6 +97,19 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return Long.parseLong(getRouteShortName(gRoute)); // using route short name as route ID
 	}
 
+	@Override
+	public String getRouteShortName(GRoute gRoute) {
+		if (Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+			return gRoute.getRouteShortName();
+		}
+		if (Utils.isDigitsOnly(gRoute.getRouteId())) {
+			return gRoute.getRouteId();
+		}
+		System.out.printf("\nUnexpected route ID for %s!\n", gRoute);
+		System.exit(-1);
+		return null;
+	}
+
 	private static final String RSN_CAPITAL_LINE = "Capital";
 	private static final String RSN_METRO_LINE = "Metro";
 
