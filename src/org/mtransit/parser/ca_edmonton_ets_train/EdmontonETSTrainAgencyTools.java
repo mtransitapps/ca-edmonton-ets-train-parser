@@ -199,26 +199,21 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
 						"1116", // NAIT Station
-								"1118", // ++ MacEwan Station
-								"1876", // ++ Churchill Station
-								"1935", // ++ Central Station
-								"1891", // Corona Station
+								"1114", // != Kingsway RAH Station <=
+								"1118", // == MacEwan Station
+								"1876", // Churchill Station
 								"2019", // == != Health Sciences Jubilee Station
-								"9981", // ++
-								"2113", // ++
 								"4982", // Century Park Station
 						})) //
 				.addTripSort(1, //
 						Arrays.asList(new String[] { //
 						"4982", // Century Park Station
-								"9982", // ++
 								"2014", // Health Sciences Jubilee Station
-								"1926", // Corona Station
-								"1863", // ++ Central Station
-								"1691", // ++ Churchill Station
-								"1117", // ++
-								"1115", // ++ Kingsway RAH Station
-								"1116" // NAIT Station
+								"1691", // Churchill Station
+								"1117", // ==
+								"1114", // != Kingsway RAH Station =>
+								"1115", // != Kingsway RAH Station
+								"1116" // NAIT Station =>
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
