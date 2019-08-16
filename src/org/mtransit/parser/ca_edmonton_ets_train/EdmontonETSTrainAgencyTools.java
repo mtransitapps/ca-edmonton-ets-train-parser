@@ -48,9 +48,40 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	public void start(String[] args) {
 		System.out.printf("\nGenerating ETS train data...");
 		long start = System.currentTimeMillis();
+		boolean isNext = "next_".equalsIgnoreCase(args[2]);
+		if (isNext) {
+			setupNext();
+		}
 		this.serviceIds = extractUsefulServiceIds(args, this, true);
 		super.start(args);
 		System.out.printf("\nGenerating ETS train data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+	}
+
+	private void setupNext() {
+		ALL_ROUTE_TRIPS2.put(RID_METRO_LINE, new RouteTripSpec(RID_METRO_LINE, //
+				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
+				1, MTrip.HEADSIGN_TYPE_STRING, NAIT) //
+				.addTripSort(0, //
+						Arrays.asList(new String[] { //
+						"1116", // NAIT Station
+								"1114", // != Kingsway RAH Station <=
+								"1118", // == MacEwan Station
+								"1876", // Churchill Station
+								"1891", // Corona Station
+								"2019", // == != Health Sciences Jubilee Station
+								"4982", // Century Park Station
+						})) //
+				.addTripSort(1, //
+						Arrays.asList(new String[] { //
+						"4982", // Century Park Station
+								"2014", // Health Sciences Jubilee Station
+								"1926", // Corona Station
+								"1691", // Churchill Station
+								"1117", // ==
+								"1114", // != Kingsway RAH Station =>
+								"1116", // NAIT Station
+						})) //
+				.compileBothTripSort());
 	}
 
 	@Override
@@ -163,6 +194,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	private static final String CENTURY_PK = "Century Pk";
 	private static final String CLAREVIEW = "Clareview";
+	private static final String KINGSWAY = "Kingsway";
 	private static final String NAIT = "NAIT";
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
@@ -195,13 +227,13 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				.compileBothTripSort());
 		map2.put(RID_METRO_LINE, new RouteTripSpec(RID_METRO_LINE, //
 				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
-				1, MTrip.HEADSIGN_TYPE_STRING, NAIT) //
+				1, MTrip.HEADSIGN_TYPE_STRING, KINGSWAY) //
 				.addTripSort(0, //
 						Arrays.asList(new String[] { //
-						"1116", // NAIT Station
-								"1114", // != Kingsway RAH Station <=
+						"1114", // != Kingsway RAH Station <=
 								"1118", // == MacEwan Station
 								"1876", // Churchill Station
+								"1891", // Corona Station
 								"2019", // == != Health Sciences Jubilee Station
 								"4982", // Century Park Station
 						})) //
@@ -209,11 +241,10 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 						Arrays.asList(new String[] { //
 						"4982", // Century Park Station
 								"2014", // Health Sciences Jubilee Station
+								"1926", // Corona Station
 								"1691", // Churchill Station
 								"1117", // ==
 								"1114", // != Kingsway RAH Station =>
-								"1115", // != Kingsway RAH Station
-								"1116" // NAIT Station =>
 						})) //
 				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
