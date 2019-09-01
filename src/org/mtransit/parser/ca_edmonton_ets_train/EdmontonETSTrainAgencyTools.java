@@ -58,30 +58,6 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	}
 
 	private void setupNext() {
-		ALL_ROUTE_TRIPS2.put(RID_METRO_LINE, new RouteTripSpec(RID_METRO_LINE, //
-				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
-				1, MTrip.HEADSIGN_TYPE_STRING, NAIT) //
-				.addTripSort(0, //
-						Arrays.asList(new String[] { //
-						"1116", // NAIT Station
-								"1114", // != Kingsway RAH Station <=
-								"1118", // == MacEwan Station
-								"1876", // Churchill Station
-								"1891", // Corona Station
-								"2019", // == != Health Sciences Jubilee Station
-								"4982", // Century Park Station
-						})) //
-				.addTripSort(1, //
-						Arrays.asList(new String[] { //
-						"4982", // Century Park Station
-								"2014", // Health Sciences Jubilee Station
-								"1926", // Corona Station
-								"1691", // Churchill Station
-								"1117", // ==
-								"1114", // != Kingsway RAH Station =>
-								"1116", // NAIT Station
-						})) //
-				.compileBothTripSort());
 	}
 
 	@Override
@@ -189,64 +165,14 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return super.getRouteColor(gRoute);
 	}
 
-	private static final long RID_CAPITAL_LINE = 501L;
 	private static final long RID_METRO_LINE = 502L;
 
 	private static final String CENTURY_PK = "Century Pk";
-	private static final String CLAREVIEW = "Clareview";
-	private static final String KINGSWAY = "Kingsway";
 	private static final String NAIT = "NAIT";
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
 		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
-		map2.put(RID_CAPITAL_LINE, new RouteTripSpec(RID_CAPITAL_LINE, //
-				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
-				1, MTrip.HEADSIGN_TYPE_STRING, CLAREVIEW) //
-				.addTripSort(0, //
-						Arrays.asList(new String[] { //
-						"7977", // Clareview Station
-								"1889", // Coliseum Station
-								"1876", // Churchill Station
-								"1935", // Central Station
-								"1891", // Corona Station
-								"2316", // University Station
-								"2115", // South Campus Ft Edmonton Station
-								"4982", // Century Park Station
-						})) //
-				.addTripSort(1, //
-						Arrays.asList(new String[] { //
-						"4982", // Century Park Station
-								"2116", // South Campus Ft Edmonton Station
-								"2969", // University Station
-								"1926", // Corona Station
-								"1691", // Churchill Station
-								"1742", // Coliseum Station
-								"7977", // Clareview Station
-						})) //
-				.compileBothTripSort());
-		map2.put(RID_METRO_LINE, new RouteTripSpec(RID_METRO_LINE, //
-				0, MTrip.HEADSIGN_TYPE_STRING, CENTURY_PK, //
-				1, MTrip.HEADSIGN_TYPE_STRING, KINGSWAY) //
-				.addTripSort(0, //
-						Arrays.asList(new String[] { //
-						"1114", // != Kingsway RAH Station <=
-								"1118", // == MacEwan Station
-								"1876", // Churchill Station
-								"1891", // Corona Station
-								"2019", // == != Health Sciences Jubilee Station
-								"4982", // Century Park Station
-						})) //
-				.addTripSort(1, //
-						Arrays.asList(new String[] { //
-						"4982", // Century Park Station
-								"2014", // Health Sciences Jubilee Station
-								"1926", // Corona Station
-								"1691", // Churchill Station
-								"1117", // ==
-								"1114", // != Kingsway RAH Station =>
-						})) //
-				.compileBothTripSort());
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
@@ -279,8 +205,32 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
 			return; // split
 		}
-		System.out.printf("\n%s: Unexpected trip %s.\n", mRoute.getId(), gTrip);
+		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
+	}
+
+	@Override
+	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
+		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
+		if (mTrip.getRouteId() == RID_METRO_LINE) {
+			if (Arrays.asList( //
+					"Downtown", // <>
+					"Health Sciences", //
+					CENTURY_PK //
+					).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString(CENTURY_PK, mTrip.getHeadsignId());
+				return true;
+			}
+			if (Arrays.asList( //
+					"Downtown", // <>
+					NAIT //
+					).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString(NAIT, mTrip.getHeadsignId());
+				return true;
+			}
+		}
+		System.out.printf("\nUnexpected trips to merge: %s & %s!\n", mTrip, mTripToMerge);
 		System.exit(-1);
+		return false;
 	}
 
 	private static final Pattern N_A_I_T_ = Pattern.compile("(n a i t)", Pattern.CASE_INSENSITIVE);
