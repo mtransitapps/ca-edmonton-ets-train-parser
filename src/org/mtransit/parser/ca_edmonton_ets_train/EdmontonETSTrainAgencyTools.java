@@ -214,6 +214,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		if (mTrip.getRouteId() == RID_METRO_LINE) {
 			if (Arrays.asList( //
 					"Downtown", // <>
+					"Churchill", //
 					"Health Sciences", //
 					CENTURY_PK //
 					).containsAll(headsignsValues)) {
