@@ -16,6 +16,7 @@ import org.mtransit.parser.SplitUtils.RouteTripSpec;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
+import org.mtransit.parser.gtfs.data.GIDs;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GSpec;
 import org.mtransit.parser.gtfs.data.GStop;
@@ -81,16 +82,6 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return super.excludeCalendarDate(gCalendarDates);
 	}
 
-	private static final int AGENCY_ID_INT = GIDs.getInt("1"); // Edmonton Transit Service ONLY
-
-	@Override
-	public boolean excludeRoute(GRoute gRoute) {
-		if (gRoute.isDifferentAgency(AGENCY_ID_INT)) {
-			return true; // exclude
-		}
-		return super.excludeRoute(gRoute);
-	}
-
 	@Override
 	public boolean excludeTrip(GTrip gTrip) {
 		if (this.serviceIds != null) {
@@ -104,8 +95,13 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return MAgency.ROUTE_TYPE_TRAIN;
 	}
 
+	private static final int AGENCY_ID_INT = GIDs.getInt("1"); // Edmonton Transit Service ONLY
+
 	@Override
 	public boolean excludeRoute(GRoute gRoute) {
+		if (gRoute.isDifferentAgency(AGENCY_ID_INT)) {
+			return true; // exclude
+		}
 		return gRoute.getRouteType() != MAgency.ROUTE_TYPE_LIGHT_RAIL; // declared as light rail but we classify it as a train (not on the road)
 	}
 
