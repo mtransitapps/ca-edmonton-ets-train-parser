@@ -29,7 +29,7 @@ import org.mtransit.parser.mt.data.MTripStop;
 // https://data.edmonton.ca/
 // http://www.edmonton.ca/ets/ets-data-for-developers.aspx
 // https://data.edmonton.ca/Transit/ETS-Bus-Schedule-GTFS-Data-Schedules-zipped-files/urjq-fvmq
-// https://drive.google.com/uc?id=1KcQixzJcucT5PDOwFJBXhDg-Alh0SVP6&export=download
+// https://gtfs.edmonton.ca/TMGTFSRealTimeWebService/GTFS/GTFS.zip
 public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	public static void main(String[] args) {
@@ -79,6 +79,16 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 			return excludeUselessCalendarDate(gCalendarDates, this.serviceIds);
 		}
 		return super.excludeCalendarDate(gCalendarDates);
+	}
+
+	private static final int AGENCY_ID_INT = GIDs.getInt("1"); // Edmonton Transit Service ONLY
+
+	@Override
+	public boolean excludeRoute(GRoute gRoute) {
+		if (gRoute.isDifferentAgency(AGENCY_ID_INT)) {
+			return true; // exclude
+		}
+		return super.excludeRoute(gRoute);
 	}
 
 	@Override
