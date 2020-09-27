@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
+import org.mtransit.parser.MTLog;
 import org.mtransit.parser.Pair;
 import org.mtransit.parser.SplitUtils;
 import org.mtransit.parser.SplitUtils.RouteTripSpec;
@@ -47,7 +48,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Override
 	public void start(String[] args) {
-		System.out.printf("\nGenerating ETS train data...");
+		MTLog.log("Generating ETS train data...");
 		long start = System.currentTimeMillis();
 		boolean isNext = "next_".equalsIgnoreCase(args[2]);
 		if (isNext) {
@@ -55,10 +56,11 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		}
 		this.serviceIds = extractUsefulServiceIds(args, this, true);
 		super.start(args);
-		System.out.printf("\nGenerating ETS train data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+		MTLog.log("Generating ETS train data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
 	}
 
 	private void setupNext() {
+		// DO NOTHING
 	}
 
 	@Override
@@ -118,9 +120,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		if (Utils.isDigitsOnly(gRoute.getRouteId())) {
 			return gRoute.getRouteId();
 		}
-		System.out.printf("\nUnexpected route ID for %s!\n", gRoute);
-		System.exit(-1);
-		return null;
+		throw new MTLog.Fatal("Unexpected route ID for %s!", gRoute);
 	}
 
 	private static final String RSN_CAPITAL_LINE = "Capital";
@@ -164,13 +164,12 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 			} else if (RSN_METRO_LINE.equalsIgnoreCase(gRoute.getRouteShortName())) {
 				return COLOR_METRO_LINE;
 			}
-			System.out.printf("\nUnexpected route color for %s!\n", gRoute);
-			System.exit(-1);
-			return null;
+			throw new MTLog.Fatal("Unexpected route color for %s!", gRoute);
 		}
 		return super.getRouteColor(gRoute);
 	}
 
+	private static final long RID_CAPITAL_LINE = 501L;
 	private static final long RID_METRO_LINE = 502L;
 
 	private static final String CENTURY_PK = "Century Pk";
@@ -178,7 +177,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
-		HashMap<Long, RouteTripSpec> map2 = new HashMap<Long, RouteTripSpec>();
+		HashMap<Long, RouteTripSpec> map2 = new HashMap<>();
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
@@ -217,11 +216,21 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
 		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
+		if (mTrip.getRouteId() == RID_CAPITAL_LINE) {
+			if (Arrays.asList( //
+					"South Campus", //
+					CENTURY_PK //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString(CENTURY_PK, mTrip.getHeadsignId());
+				return true;
+			}
+		}
 		if (mTrip.getRouteId() == RID_METRO_LINE) {
 			if (Arrays.asList( //
 					"Downtown", // <>
 					"Churchill", //
 					"Health Sciences", //
+					"South Campus", //
 					CENTURY_PK //
 					).containsAll(headsignsValues)) {
 				mTrip.setHeadsignString(CENTURY_PK, mTrip.getHeadsignId());
@@ -235,9 +244,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 				return true;
 			}
 		}
-		System.out.printf("\nUnexpected trips to merge: %s & %s!\n", mTrip, mTripToMerge);
-		System.exit(-1);
-		return false;
+		throw new MTLog.Fatal("Unexpected trips to merge: %s & %s!", mTrip, mTripToMerge);
 	}
 
 	private static final Pattern N_A_I_T_ = Pattern.compile("(n a i t)", Pattern.CASE_INSENSITIVE);
