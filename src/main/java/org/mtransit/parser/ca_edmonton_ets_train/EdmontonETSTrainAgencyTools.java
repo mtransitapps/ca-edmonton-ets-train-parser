@@ -213,34 +213,37 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
 	}
 
+	private static final String NB_ = "NB ";
+	private static final String SB_ = "SB ";
+
 	@Override
 	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
 		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
 		if (mTrip.getRouteId() == RID_CAPITAL_LINE) {
 			if (Arrays.asList( //
-					"South Campus", //
-					CENTURY_PK //
+					SB_ + "South Campus", //
+					SB_ + CENTURY_PK //
 			).containsAll(headsignsValues)) {
-				mTrip.setHeadsignString(CENTURY_PK, mTrip.getHeadsignId());
+				mTrip.setHeadsignString(SB_ + CENTURY_PK, mTrip.getHeadsignId());
 				return true;
 			}
 		}
 		if (mTrip.getRouteId() == RID_METRO_LINE) {
 			if (Arrays.asList( //
-					"Downtown", // <>
-					"Churchill", //
-					"Health Sciences", //
-					"South Campus", //
-					CENTURY_PK //
+					SB_ + "Downtown", // <>
+					SB_ + "Churchill", //
+					SB_ + "Health Sciences", //
+					SB_ + "South Campus", //
+					SB_ + CENTURY_PK //
 					).containsAll(headsignsValues)) {
-				mTrip.setHeadsignString(CENTURY_PK, mTrip.getHeadsignId());
+				mTrip.setHeadsignString(SB_ + CENTURY_PK, mTrip.getHeadsignId());
 				return true;
 			}
 			if (Arrays.asList( //
-					"Downtown", // <>
-					NAIT //
+					NB_ + "Downtown", // <>
+					NB_ + NAIT //
 					).containsAll(headsignsValues)) {
-				mTrip.setHeadsignString(NAIT, mTrip.getHeadsignId());
+				mTrip.setHeadsignString(NB_ + NAIT, mTrip.getHeadsignId());
 				return true;
 			}
 		}
@@ -253,6 +256,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
 		tripHeadsign = N_A_I_T_.matcher(tripHeadsign).replaceAll(N_A_I_T_REPLACEMENT);
+		tripHeadsign = CleanUtils.cleanBounds(tripHeadsign);
 		tripHeadsign = CleanUtils.cleanStreetTypes(tripHeadsign);
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
