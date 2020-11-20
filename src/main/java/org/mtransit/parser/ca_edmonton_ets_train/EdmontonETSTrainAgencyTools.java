@@ -175,7 +175,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	private static final String CENTURY_PK = "Century Pk";
 	private static final String NAIT = "NAIT";
 
-	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
+	private static final HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
 	static {
 		HashMap<Long, RouteTripSpec> map2 = new HashMap<>();
 		ALL_ROUTE_TRIPS2 = map2;
@@ -213,8 +213,8 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		mTrip.setHeadsignString(cleanTripHeadsign(gTrip.getTripHeadsign()), gTrip.getDirectionId());
 	}
 
-	private static final String NB_ = "NB ";
-	private static final String SB_ = "SB ";
+	private static final String NB_ = ""; // TODO ? "NB "
+	private static final String SB_ = ""; // TODO ? "SB ";
 
 	@Override
 	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
