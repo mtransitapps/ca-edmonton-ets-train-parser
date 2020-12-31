@@ -1,11 +1,11 @@
 package org.mtransit.parser.ca_edmonton_ets_train;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
+import org.mtransit.parser.StringUtils;
 import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
@@ -19,6 +19,8 @@ import org.mtransit.parser.mt.data.MTrip;
 
 import java.util.HashSet;
 import java.util.regex.Pattern;
+
+import static org.mtransit.parser.Constants.EMPTY;
 
 // https://data.edmonton.ca/
 // http://www.edmonton.ca/ets/ets-data-for-developers.aspx
@@ -121,7 +123,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getRouteLongName(@NotNull GRoute gRoute) {
 		String gRouteLongName = gRoute.getRouteLongNameOrDefault();
-		gRouteLongName = CLEAN_STARTS_LRT.matcher(gRouteLongName).replaceAll(StringUtils.EMPTY);
+		gRouteLongName = CLEAN_STARTS_LRT.matcher(gRouteLongName).replaceAll(EMPTY);
 		return CleanUtils.cleanLabel(gRouteLongName);
 	}
 
@@ -201,7 +203,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@NotNull
 	@Override
 	public String cleanStopName(@NotNull String gStopName) {
-		gStopName = ENDS_WITH_STATION.matcher(gStopName).replaceAll(StringUtils.EMPTY);
+		gStopName = ENDS_WITH_STATION.matcher(gStopName).replaceAll(EMPTY);
 		gStopName = EDMONTON_.matcher(gStopName).replaceAll(EDMONTON_REPLACEMENT);
 		gStopName = CleanUtils.cleanStreetTypes(gStopName);
 		gStopName = CleanUtils.cleanNumbers(gStopName);
