@@ -90,19 +90,9 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return CleanUtils.cleanLabel(routeLongName);
 	}
 
-	private static final String AGENCY_COLOR_BLUE = "005087"; // BLUE (from most bus routes)
-
-	private static final String AGENCY_COLOR = AGENCY_COLOR_BLUE;
-
 	@Override
 	public boolean defaultAgencyColorEnabled() {
 		return true;
-	}
-
-	@NotNull
-	@Override
-	public String getAgencyColor() {
-		return AGENCY_COLOR;
 	}
 
 	private static final String COLOR_CAPITAL_LINE = "0D4BA0"; // BLUE (from PDF map)
