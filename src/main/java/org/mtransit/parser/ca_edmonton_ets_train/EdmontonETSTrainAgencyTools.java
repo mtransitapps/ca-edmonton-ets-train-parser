@@ -1,5 +1,7 @@
 package org.mtransit.parser.ca_edmonton_ets_train;
 
+import static org.mtransit.parser.Constants.EMPTY;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mtransit.commons.CharUtils;
@@ -7,15 +9,11 @@ import org.mtransit.commons.CleanUtils;
 import org.mtransit.commons.StringUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
-import org.mtransit.parser.gtfs.data.GAgency;
-import org.mtransit.parser.gtfs.data.GIDs;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GStop;
 import org.mtransit.parser.mt.data.MAgency;
 
 import java.util.regex.Pattern;
-
-import static org.mtransit.parser.Constants.EMPTY;
 
 // https://data.edmonton.ca/
 // http://www.edmonton.ca/ets/ets-data-for-developers.aspx
@@ -43,21 +41,16 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return MAgency.ROUTE_TYPE_TRAIN;
 	}
 
-	private static final int AGENCY_ID_INT = GIDs.getInt("1"); // Edmonton Transit Service ONLY
+	private static final String AGENCY_ID = "1"; // Edmonton Transit Service ONLY
 
+	@Nullable
 	@Override
-	public boolean excludeAgency(@NotNull GAgency gAgency) {
-		if (gAgency.getAgencyIdInt() != AGENCY_ID_INT) {
-			return EXCLUDE;
-		}
-		return super.excludeAgency(gAgency);
+	public String getAgencyId() {
+		return AGENCY_ID;
 	}
 
 	@Override
 	public boolean excludeRoute(@NotNull GRoute gRoute) {
-		if (gRoute.isDifferentAgency(AGENCY_ID_INT)) {
-			return EXCLUDE;
-		}
 		return gRoute.getRouteType() != MAgency.ROUTE_TYPE_LIGHT_RAIL; // declared as light rail but we classify it as a train (not on the road)
 	}
 
@@ -68,14 +61,13 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	}
 
 	@Override
-	public long getRouteId(@NotNull GRoute gRoute) {
-		final String rsnS = gRoute.getRouteShortName();
-		if (RSN_CAPITAL_LINE.equalsIgnoreCase(rsnS)) {
-			return 501L;
-		} else if (RSN_METRO_LINE.equalsIgnoreCase(rsnS)) {
-			return 502L;
-		}
-		throw new MTLog.Fatal("Unexpected route ID for %s!", gRoute); // used by real-time API (fall back from route short name)
+	public boolean defaultRouteIdEnabled() {
+		return true;
+	}
+
+	@Override
+	public boolean useRouteShortNameForRouteId() {
+		return false;
 	}
 
 	private static final String RSN_CAPITAL_LINE = "Capital";
@@ -100,15 +92,15 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	@Nullable
 	@Override
-	public String getRouteColor(@NotNull GRoute gRoute) {
+	public String getRouteColor(@NotNull GRoute gRoute, @NotNull MAgency agency) {
 		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
 			final String rsnS = gRoute.getRouteShortName();
 			if (CharUtils.isDigitsOnly(rsnS)) {
 				final int rsn = Integer.parseInt(rsnS);
 				switch (rsn) {
-				case 501:
+				case 501: // 21R
 					return COLOR_CAPITAL_LINE;
-				case 502:
+				case 502: // 22R
 					return COLOR_METRO_LINE;
 				}
 			}
@@ -119,7 +111,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 			}
 			throw new MTLog.Fatal("Unexpected route color for %s!", gRoute);
 		}
-		return super.getRouteColor(gRoute);
+		return super.getRouteColor(gRoute, agency);
 	}
 
 	@Override
