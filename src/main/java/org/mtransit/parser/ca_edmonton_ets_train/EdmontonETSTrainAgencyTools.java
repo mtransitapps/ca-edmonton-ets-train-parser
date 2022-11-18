@@ -54,10 +54,11 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return gRoute.getRouteType() != MAgency.ROUTE_TYPE_LIGHT_RAIL; // declared as light rail but we classify it as a train (not on the road)
 	}
 
-	@Nullable
+	@NotNull
 	@Override
 	public String getRouteShortName(@NotNull GRoute gRoute) {
-		return super.getRouteShortName(gRoute); // used by real-time API (fall back on route ID)
+		//noinspection deprecation
+		return gRoute.getRouteId(); // route ID string as route short name used by real-time API
 	}
 
 	@Override
