@@ -16,9 +16,7 @@ import org.mtransit.parser.mt.data.MAgency;
 import java.util.regex.Pattern;
 
 // https://data.edmonton.ca/
-// http://www.edmonton.ca/ets/ets-data-for-developers.aspx
 // https://data.edmonton.ca/Transit/ETS-Bus-Schedule-GTFS-Data-Schedules-zipped-files/urjq-fvmq
-// https://gtfs.edmonton.ca/TMGTFSRealTimeWebService/GTFS/GTFS.zip
 public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 
 	public static void main(@NotNull String[] args) {
@@ -58,7 +56,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getRouteShortName(@NotNull GRoute gRoute) {
 		//noinspection deprecation
-		return gRoute.getRouteId(); // route ID string as route short name used by real-time API
+		return gRoute.getRouteId(); // route ID string as route short name used by real-time API  // used by GTFS-RT
 	}
 
 	@Override
@@ -66,6 +64,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return true;
 	}
 
+	@SuppressWarnings("RedundantMethodOverride")
 	@Override
 	public boolean useRouteShortNameForRouteId() {
 		return false;
@@ -128,7 +127,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		return CleanUtils.cleanLabel(tripHeadsign);
 	}
 
-	private static final Pattern ENDS_WITH_STATION = Pattern.compile("([\\s]*station[\\s]*$)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern ENDS_WITH_STATION = Pattern.compile("(\\s*station\\s*$)", Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern EDMONTON_ = CleanUtils.cleanWord("edmonton");
 	private static final String EDMONTON_REPLACEMENT = CleanUtils.cleanWordsReplacement("Edm");
@@ -149,6 +148,6 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 		if (!CharUtils.isDigitsOnly(gStop.getStopCode())) {
 			throw new MTLog.Fatal("Unexpected stop code %s!", gStop);
 		}
-		return super.getStopCode(gStop); // used by real-time provider
+		return super.getStopCode(gStop); // used by real-time provider & GTFS-RT
 	}
 }
