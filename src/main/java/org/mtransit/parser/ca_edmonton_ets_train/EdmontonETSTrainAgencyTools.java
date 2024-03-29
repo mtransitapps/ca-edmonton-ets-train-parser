@@ -42,7 +42,7 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@NotNull
 	@Override
 	public Integer getAgencyRouteType() {
-		return MAgency.ROUTE_TYPE_TRAIN;
+		return MAgency.ROUTE_TYPE_LIGHT_RAIL;
 	}
 
 	private static final String AGENCY_ID = "1"; // Edmonton Transit Service ONLY
@@ -51,15 +51,6 @@ public class EdmontonETSTrainAgencyTools extends DefaultAgencyTools {
 	@Override
 	public String getAgencyId() {
 		return AGENCY_ID;
-	}
-
-	@Override
-	public boolean excludeRoute(@NotNull GRoute gRoute) {
-		//noinspection deprecation
-		if (gRoute.getRouteId().equals("023R")) { // Classified as bus
-			return KEEP;
-		}
-		return gRoute.getRouteType() != MAgency.ROUTE_TYPE_LIGHT_RAIL; // declared as light rail but we classify it as a train (not on the road)
 	}
 
 	@NotNull
